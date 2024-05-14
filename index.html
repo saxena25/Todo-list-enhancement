@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo list Enhancement</title>
+    <style>
+        .container{
+            text-align: center;
+        }
+        .container>h1{
+            font-size: 3rem;
+        }
+        .title{
+            font-size: 2rem;
+        }
+        .status{
+            font-size: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+        function Todo(){
+            const [task, setTask] = React.useState([]);//here taken an empty array from todo task.
+            const [formState, setFormState] = React.useState({
+                title: '',
+                completed: false,
+            })// created a object where new new todos where added.
+
+            const handleChange = (event) =>{
+                const {target} = event;
+                const value = target.type === 'checkbox' ? target.checked : target.value;// here we are checking whether input value is text or checkbox.
+
+                setFormState({
+                    ...formState,
+                    [target.name]: value,
+                })
+            }
+
+            const HandleSubmit = (event) =>{
+                event.preventDefault();
+                const newTask = {...formState,
+                    id: Date.now() + Math.random()
+                };//here we are creating new task and a random id and also adding prev formState.
+                setTask([...task, newTask]);//now we are send newtask in setTask Array also adding  prev tasks..
+                setFormState({
+                    title: '',
+                    completed: false,
+                })// after that we are making formState empty..
+            }
+
+            const handleDelete = (id) =>{
+                setTask(prevTodo => prevTodo.filter(todo=>todo.id !== id));
+            }// here we are filtering the todos if todo.id is not equal to id it show on UI. basically it will delete the click todo and show the rest of 
+            // todos to UI.
+
+            const handleToggle = (id) =>{
+                setTask((prevTodo)=>prevTodo.map((todo)=>
+            todo.id === id ? {...todo, completed: !todo.completed} : todo))
+            }//   here we toggling the completed status. true or false. completed or not Completed
+
+            return(
+                <div className='container'>
+                    <h1>Todo List</h1>
+                    <div className="form">
+                        <form onSubmit={HandleSubmit}>
+                            <label htmlFor="" className='title'>
+                                Todo: <input name='title' value={formState.title} type="text" onChange={handleChange}/>
+                            </label>
+                            <label className='status'>
+                                Status: <input type="checkbox" name='completed' checked={formState.completed} onChange={handleChange}/>
+                            </label>
+                            <button type='submit'>Add New Task</button>
+                        </form>
+                    </div>
+                    {task.map((task)=>(
+                            <div key={task.id}>
+                                <li style={{textDecoration: task.completed ? 'line-through' : 'none'}}>Task: <b>{task.title}</b></li>
+                                <input type="checkbox" checked={task.completed} onChange={()=>handleToggle(task.id)}/>
+                                <button onClick={()=>handleDelete(task.id)}>Delete</button>
+                            </div>
+                        )
+                    )}
+                </div>
+            )
+        }
+
+        const root =  document.getElementById('root');
+        ReactDOM.createRoot(root).render(<Todo />)
+    </script>
+</body>
+</html>
